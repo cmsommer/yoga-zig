@@ -32,25 +32,32 @@ pub fn build(b: *std.Build) void {
     yoga_zig_lib.linkLibC();
     yoga_zig_lib.linkLibCpp();
 
-    const lib: []const u8 = if (target.result.os.tag == .windows and target.result.abi == .msvc) "yogacore.lib" else "libyogacore.a";
-    const lib_path = std.fmt.allocPrint(b.allocator, "./build/{s}", .{
+    const yoga_compile_run = b.addSystemCommand(&.{
+        "cmake",
+        yoga_dep.path("").getPath(b),
+        "-B",
+        yoga_dep.path("build").getPath(b),
+        "-G",
+        "Ninja",
+    });
+    b.default_step.dependOn(&yoga_compile_run.step);
+
+    const yoga_compile_build_run = b.addSystemCommand(&.{
+        "cmake",
+        "--build",
+        yoga_dep.path("build").getPath(b),
+    });
+
+    b.default_step.dependOn(&yoga_compile_build_run.step);
+
+    const lib: []const u8 = if (target.result.os.tag == .windows and target.result.abi == .msvc) "yoga/yogacore.lib" else "yoga/libyogacore.a";
+    const lib_path = std.fmt.allocPrint(b.allocator, "{s}/{s}", .{
+        yoga_dep.path("build").getPath(b),
         lib,
     }) catch unreachable;
 
-    const yoga_cmake = std.fmt.allocPrint(b.allocator, "cmake {s} -B {s} -G=Ninja", .{
-        yoga_dep.path(""),
-        yoga_dep.path("build"),
-    }) catch unreachable;
-
-    const yoga_compile_run = b.addSystemCommand(&.{
-        "CC='zig cc'",
-        "CXX='zig c++'",
-        yoga_cmake,
-    });
-    _ = yoga_compile_run; // autofix
-
     yoga_zig_mod.addIncludePath(yoga_dep.path(""));
-    yoga_zig_mod.addAssemblyFile(b.path(lib_path));
+    yoga_zig_mod.addAssemblyFile(.{ .cwd_relative = lib_path });
     yoga_zig_mod.linkLibrary(yoga_zig_lib);
 
     b.installArtifact(yoga_zig_lib);
