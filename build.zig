@@ -40,6 +40,7 @@ pub fn build(b: *std.Build) void {
         "-G",
         "Ninja",
     });
+
     b.default_step.dependOn(&yoga_compile_run.step);
 
     const yoga_compile_build_run = b.addSystemCommand(&.{
@@ -52,12 +53,14 @@ pub fn build(b: *std.Build) void {
 
     const lib: []const u8 = if (target.result.os.tag == .windows and target.result.abi == .msvc) "yoga/yogacore.lib" else "yoga/libyogacore.a";
     const lib_path = std.fmt.allocPrint(b.allocator, "{s}/{s}", .{
-        yoga_dep.path("build").getPath(b),
+        "build",
         lib,
     }) catch unreachable;
 
-    yoga_zig_mod.addIncludePath(yoga_dep.path(""));
-    yoga_zig_mod.addAssemblyFile(.{ .cwd_relative = lib_path });
+    yoga_zig_mod.addObjectFile(.{ .dependency = .{
+        .dependency = yoga_dep,
+        .sub_path = lib_path,
+    } });
     yoga_zig_mod.linkLibrary(yoga_zig_lib);
 
     b.installArtifact(yoga_zig_lib);
@@ -70,6 +73,12 @@ pub fn build(b: *std.Build) void {
     });
 
     exe.linkLibrary(yoga_zig_lib);
+    exe.linkLibC();
+    exe.linkLibCpp();
+    exe.addObjectFile(.{ .dependency = .{
+        .dependency = yoga_dep,
+        .sub_path = lib_path,
+    } });
 
     b.installArtifact(exe);
 
