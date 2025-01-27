@@ -62,6 +62,14 @@ pub const Node = struct {
         c.YGNodeCalculateLayout(self.handle, availableWidth orelse 0.0, availableHeight orelse 0.0, ygDir);
     }
 
+    pub fn getChildCount(self: Node) usize {
+        return c.YGNodeGetChildCount(self.handle);
+    }
+    pub fn getChildAt(self: Node, index: usize) Node {
+        const ygNode = c.YGNodeGetChild(self.handle, index);
+        return .{ .handle = ygNode };
+    }
+
     pub fn getFlexDirection(self: Node) enums.FlexDirection {
         const ygValue = c.YGNodeStyleGetFlexDirection(self.handle);
         return @enumFromInt(@as(i32, ygValue));
@@ -81,6 +89,13 @@ pub const Node = struct {
         c.YGNodeStyleSetWidth(self.handle, size);
     }
 
+    pub fn getHeight(self: Node) Value {
+        const ygValue = c.YGNodeStyleGetHeight(self.handle);
+        return .{
+            .value = ygValue.value,
+            .unit = @enumFromInt(@as(i32, ygValue.unit)),
+        };
+    }
     pub fn setHeight(self: Node, size: f32) void {
         c.YGNodeStyleSetHeight(self.handle, size);
     }
@@ -96,6 +111,25 @@ pub const Node = struct {
 
     pub fn insertChild(self: Node, child: Node, index: usize) void {
         c.YGNodeInsertChild(self.handle, child.handle, index);
+    }
+
+    pub fn getComputedWidth(self: Node) f32 {
+        return c.YGNodeLayoutGetWidth(self.handle);
+    }
+    pub fn getComputedHeight(self: Node) f32 {
+        return c.YGNodeLayoutGetWidth(self.handle);
+    }
+    pub fn getComputedLeft(self: Node) f32 {
+        return c.YGNodeLayoutGetLeft(self.handle);
+    }
+    pub fn getComputedTop(self: Node) f32 {
+        return c.YGNodeLayoutGetTop(self.handle);
+    }
+    pub fn getComputedRight(self: Node) f32 {
+        return c.YGNodeLayoutGetRight(self.handle);
+    }
+    pub fn getComputedBottom(self: Node) f32 {
+        return c.YGNodeLayoutGetBottom(self.handle);
     }
 };
 
