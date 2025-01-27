@@ -98,3 +98,24 @@ pub const Node = struct {
         c.YGNodeInsertChild(self.handle, child.handle, index);
     }
 };
+
+test "basic test" {
+    const root = Node.initDefault();
+    defer root.free();
+    root.setFlexDirection(enums.FlexDirection.Row);
+    root.setWidth(100);
+    root.setHeight(100);
+
+    const child0 = Node.initDefault();
+    defer child0.free();
+    child0.setFlexGrow(1);
+    child0.setMargin(enums.Edge.Right, 10);
+    root.insertChild(child0, 0);
+
+    const child1 = Node.initDefault();
+    defer child1.free();
+    child1.setFlexGrow(1);
+    root.insertChild(child1, 1);
+
+    root.calculateLayout(undefined, undefined, enums.Direction.LTR);
+}

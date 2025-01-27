@@ -41,11 +41,16 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const yoga_zig_lib = b.addStaticLibrary(.{
-        .name = "zig-yoga",
+    const yoga_zig_mod = b.addModule("yoga-zig", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
+        .link_libcpp = true,
+    });
+
+    const yoga_zig_lib = b.addStaticLibrary(.{
+        .name = "yoga-zig",
+        .root_module = yoga_zig_mod,
     });
 
     yoga_zig_lib.addCSourceFiles(.{
@@ -61,29 +66,17 @@ pub fn build(b: *std.Build) void {
     yoga_zig_lib.linkLibCpp();
     yoga_zig_lib.addIncludePath(yoga_dep.path(""));
 
-    const yoga_zig_mod = b.addModule("zig-yoga", .{
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
-        .link_libcpp = true,
-    });
-
-    yoga_zig_mod.linkLibrary(yoga_zig_lib);
-
-    const exe = b.addExecutable(.{
-        .name = "zig-yoga-test",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    exe.linkLibrary(yoga_zig_lib);
-    exe.root_module.addImport("zig-yoga", yoga_zig_mod);
-
     b.installArtifact(yoga_zig_lib);
-    b.installArtifact(exe);
 
-    const run_cmd = b.addRunArtifact(exe);
+    const yoga_zig_sample = b.addExecutable(.{
+        .name = "yoga-zig-sample",
+        .root_source_file = b.path("tests/raylib-demo/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    yoga_zig_sample.root_module.addImport("yoga-zig", yoga_zig_mod);
+
+    const run_cmd = b.addRunArtifact(yoga_zig_sample);
     run_cmd.step.dependOn(b.getInstallStep());
 
     if (b.args) |args| {
@@ -93,13 +86,11 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
 
-    const exe_unit_tests = b.addTest(.{
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+    const lib_unit_tests = b.addTest(.{
+        .root_module = yoga_zig_mod,
     });
 
-    const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
+    const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
     const test_step = b.step("test", "Run unit tests");
-    test_step.dependOn(&run_exe_unit_tests.step);
+    test_step.dependOn(&run_lib_unit_tests.step);
 }
