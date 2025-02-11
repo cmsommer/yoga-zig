@@ -27,28 +27,34 @@ pub const Basis = union(enum) {
 pub const Config = struct {
     handle: c.YGConfigRef,
 
-    fn free(self: Config) void {
+    pub fn init() Config {
+        return .{
+            .handle = c.YGConfigNew(),
+        };
+    }
+
+    pub fn free(self: Config) void {
         c.YGConfigFree(self);
     }
-    fn isExperimentalFeatureEnabled(self: Config, feature: enums.ExperimentalFeature) bool {
+    pub fn isExperimentalFeatureEnabled(self: Config, feature: enums.ExperimentalFeature) bool {
         return c.YGConfigIsExperimentalFeatureEnabled(self.handle, feature);
     }
-    fn setExperimentalFeatureEnabled(self: Config, feature: enums.ExperimentalFeature, enabled: bool) void {
+    pub fn setExperimentalFeatureEnabled(self: Config, feature: enums.ExperimentalFeature, enabled: bool) void {
         c.YGConfigSetExperimentalFeatureEnabled(self.handle, feature, enabled);
     }
-    fn setPointScaleFactor(self: Config, factor: f32) void {
+    pub fn setPointScaleFactor(self: Config, factor: f32) void {
         c.YGConfigSetPointScaleFactor(self.handle, factor);
     }
-    fn getErrata(self: Config) enums.Errata {
+    pub fn getErrata(self: Config) enums.Errata {
         return c.YGConfigGetErrata(self.handle);
     }
-    fn setErrata(self: Config, errata: enums.Errata) void {
+    pub fn setErrata(self: Config, errata: enums.Errata) void {
         c.YGConfigSetErrata(self.handle, errata);
     }
-    fn getUseWebDefaults(self: Config) bool {
+    pub fn getUseWebDefaults(self: Config) bool {
         return c.YGConfigGetUseWebDefaults(self);
     }
-    fn setUseWebDefaults(self: Config, useWebDefaults: bool) void {
+    pub fn setUseWebDefaults(self: Config, useWebDefaults: bool) void {
         c.YGConfigSetUseWebDefaults(self.handle, useWebDefaults);
     }
 };
