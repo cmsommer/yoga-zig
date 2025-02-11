@@ -87,7 +87,7 @@ pub const Node = struct {
     pub fn getChildCount(self: Node) usize {
         return c.YGNodeGetChildCount(self.handle);
     }
-    pub fn getChildAt(self: Node, index: usize) Node {
+    pub fn getChild(self: Node, index: usize) Node {
         const ygNode = c.YGNodeGetChild(self.handle, index);
         return .{ .handle = ygNode };
     }
@@ -95,9 +95,6 @@ pub const Node = struct {
     pub fn getFlexDirection(self: Node) enums.FlexDirection {
         const ygValue = c.YGNodeStyleGetFlexDirection(self.handle);
         return @enumFromInt(@as(i32, ygValue));
-    }
-    pub fn setFlexDirection(self: Node, dir: enums.FlexDirection) void {
-        c.YGNodeStyleSetFlexDirection(self.handle, @intFromEnum(dir));
     }
 
     pub fn getWidth(self: Node) Value {
@@ -107,9 +104,6 @@ pub const Node = struct {
             .unit = @enumFromInt(@as(i32, ygValue.unit)),
         };
     }
-    pub fn setWidth(self: Node, size: f32) void {
-        c.YGNodeStyleSetWidth(self.handle, size);
-    }
 
     pub fn getHeight(self: Node) Value {
         const ygValue = c.YGNodeStyleGetHeight(self.handle);
@@ -118,19 +112,6 @@ pub const Node = struct {
             .unit = @enumFromInt(@as(i32, ygValue.unit)),
         };
     }
-    pub fn setHeight(self: Node, size: f32) void {
-        c.YGNodeStyleSetHeight(self.handle, size);
-    }
-
-    pub fn setFlexGrow(self: Node, amount: f32) void {
-        c.YGNodeStyleSetFlexGrow(self.handle, amount);
-    }
-
-    pub fn setMargin(self: Node, edge: enums.Edge, size: f32) void {
-        const ygEdge = @as(c_uint, @intFromEnum(edge));
-        c.YGNodeStyleSetMargin(self.handle, ygEdge, size);
-    }
-
     pub fn insertChild(self: Node, child: Node, index: usize) void {
         c.YGNodeInsertChild(self.handle, child.handle, index);
     }
@@ -358,7 +339,7 @@ pub const Node = struct {
     }
     pub fn setFlexBasis(self: Node, flexBasis: ?Basis) void {
         if (flexBasis == null) {
-            c.YGNodeStyleSetFlexBasisAuto(self.handle);
+            c.YGNodeStyleSetFlexBasis(self.handle, 0);
         } else {
             switch (flexBasis) {
                 Basis.number => |value| c.YGNodeStyleSetFlexBasis(self.handle, value),
@@ -419,8 +400,155 @@ pub const Node = struct {
     pub fn setGap(self: Node, gutter: enums.Gutter, gapLength: f32) Value {
         c.YGNodeStyleSetGap(self.handle, @intFromEnum(gutter), gapLength);
     }
-    pub fn setGapPercent(self: Node, gutter: Gutter, percentage: f32) Value {
+    pub fn setGapPercent(self: Node, gutter: enums.Gutter, percentage: f32) Value {
         c.YGNodeStyleSetGapPercent(self.handle, @intFromEnum(gutter), percentage);
+    }
+
+    pub fn setMargin(self: Node, edge: enums.Edge, margin: f32) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetMargin(self.handle, ygEdge, margin);
+    }
+    pub fn setMarginAuto(self: Node, edge: enums.Edge) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetMarginAuto(self.handle, ygEdge);
+    }
+    pub fn setMarginPercent(self: Node, edge: enums.Edge, percent: f32) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetMarginPercent(self.handle, ygEdge, percent);
+    }
+
+    pub fn setMaxHeight(self: Node, maxHeight: f32) void {
+        c.YGNodeStyleSetMaxHeight(self.handle, maxHeight);
+    }
+    pub fn setMaxHeightFitContent(self: Node) void {
+        c.YGNodeStyleSetMaxHeightFitContent(self.handle);
+    }
+    pub fn setMaxHeightMaxContent(self: Node) void {
+        c.YGNodeStyleSetMaxHeightMaxContent(self.handle);
+    }
+    pub fn setMaxHeightPercent(self: Node, percent: f32) void {
+        c.YGNodeStyleSetMaxHeightPercent(self.handle, percent);
+    }
+    pub fn setMaxHeightStretch(self: Node) void {
+        c.YGNodeStyleSetMaxHeightStretch(self.handle);
+    }
+
+    pub fn setMaxWidth(self: Node, maxWidth: f32) void {
+        c.YGNodeStyleSetMaxWidth(self.handle, maxWidth);
+    }
+    pub fn setMaxWidthFitContent(self: Node) void {
+        c.YGNodeStyleSetMaxWidthFitContent(self.handle);
+    }
+    pub fn setMaxWidthMaxContent(self: Node) void {
+        c.YGNodeStyleSetMaxWidthMaxContent(self.handle);
+    }
+    pub fn setMaxWidthPercent(self: Node, percent: f32) void {
+        c.YGNodeStyleSetMaxWidthPercent(self.handle, percent);
+    }
+    pub fn setMaxWidthStretch(self: Node) void {
+        c.YGNodeStyleSetMaxWidthStretch(self.handle);
+    }
+
+    pub fn setDirtiedFunc(self: Node, func: c.YGDirtiedFunc) void {
+        c.YGNodeSetDirtiedFunc(self.handle, func);
+    }
+    pub fn setMeasureFunc(self: Node, func: c.YGMeasureFunc) void {
+        c.YGNodeSetMeasureFunc(self.handle, func);
+    }
+
+    pub fn setMinHeight(self: Node, minHeight: f32) void {
+        c.YGNodeStyleSetMinHeight(self.handle, minHeight);
+    }
+    pub fn setMinHeightFitContent(self: Node) void {
+        c.YGNodeStyleSetMinHeightFitContent(self.handle);
+    }
+    pub fn setMinHeightMaxContent(self: Node) void {
+        c.YGNodeStyleSetMinHeightMaxContent(self.handle);
+    }
+    pub fn setMinHeightPercent(self: Node, percent: f32) void {
+        c.YGNodeStyleSetMinHeightPercent(self.handle, percent);
+    }
+    pub fn setMinHeightStretch(self: Node) void {
+        c.YGNodeStyleSetMinHeightStretch(self.handle);
+    }
+
+    pub fn setMinWidth(self: Node, minWidth: f32) void {
+        c.YGNodeStyleSetMinWidth(self.handle, minWidth);
+    }
+    pub fn setMinWidthFitContent(self: Node) void {
+        c.YGNodeStyleSetMinWidthFitContent(self.handle);
+    }
+    pub fn setMinWidthMaxContent(self: Node) void {
+        c.YGNodeStyleSetMinWidthMaxContent(self.handle);
+    }
+    pub fn setMinWidthPercent(self: Node, percent: f32) void {
+        c.YGNodeStyleSetMinWidthPercent(self.handle, percent);
+    }
+    pub fn setMinWidthStretch(self: Node) void {
+        c.YGNodeStyleSetMinWidthStretch(self.handle);
+    }
+
+    pub fn setOverflow(self: Node, overflow: enums.Overflow) void {
+        c.YGNodeStyleSetOverflow(self.handle, @intFromEnum(overflow));
+    }
+
+    pub fn setPadding(self: Node, edge: enums.Edge, padding: f32) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetPadding(self.handle, ygEdge, padding);
+    }
+    pub fn setPaddingPercent(self: Node, edge: enums.Edge, percent: f32) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetPaddingPercent(self.handle, ygEdge, percent);
+    }
+
+    pub fn setPosition(self: Node, edge: enums.Edge, position: f32) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetPosition(self.handle, ygEdge, position);
+    }
+    pub fn setPositionPercent(self: Node, edge: enums.Edge, percent: f32) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetPositionPercent(self.handle, ygEdge, percent);
+    }
+    pub fn setPositionType(self: Node, positionType: enums.PositionType) void {
+        c.YGNodeStyleSetPositionType(self.handle, @intFromEnum(positionType));
+    }
+    pub fn setPositionAuto(self: Node, edge: enums.Edge) void {
+        const ygEdge = @as(c_uint, @intFromEnum(edge));
+        c.YGNodeStyleSetPositionAuto(self.handle, ygEdge);
+    }
+
+    pub fn setBoxSizing(self: Node, boxSizing: enums.BoxSizing) void {
+        c.YGNodeStyleSetBoxSizing(self.handle, @intFromEnum(boxSizing));
+    }
+
+    pub fn setWidth(self: Node, width: f32) void {
+        c.YGNodeStyleSetWidth(self.handle, width);
+    }
+    pub fn setWidthAuto(self: Node) void {
+        c.YGNodeStyleSetWidthAuto(self.handle);
+    }
+    pub fn setWidthFitContent(self: Node) void {
+        c.YGNodeStyleSetWidthFitContent(self.handle);
+    }
+    pub fn setWidthMaxContent(self: Node) void {
+        c.YGNodeStyleSetWidthMaxContent(self.handle);
+    }
+    pub fn setWidthPercent(self: Node, percent: f32) void {
+        c.YGNodeStyleSetWidthPercent(self.handle, percent);
+    }
+    pub fn setWidthStretch(self: Node) void {
+        c.YGNodeStyleSetWidthStretch(self.handle);
+    }
+
+    pub fn unsetDirtieFunc(self: Node) void {
+        c.YGNodeSetDirtiedFunc(self.handle, null);
+    }
+    pub fn unsetMeasureFunc(self: Node) void {
+        c.YGNodeSetMeasureFunc(self.handle, null);
+    }
+
+    pub fn setAlwaysFormsContainerBlock(self: Node, always: bool) void {
+        c.YGNodeSetAlwaysFormsContainingBlock(self.handle, always);
     }
 };
 
