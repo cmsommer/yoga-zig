@@ -403,10 +403,10 @@ pub const Node = struct {
         c.YGNodeStyleSetJustifyContent(self.handle, @intFromEnum(justifyContent));
     }
 
-    pub fn setGap(self: Node, gutter: enums.Gutter, gapLength: f32) Value {
+    pub fn setGap(self: Node, gutter: enums.Gutter, gapLength: f32) void {
         c.YGNodeStyleSetGap(self.handle, @intFromEnum(gutter), gapLength);
     }
-    pub fn setGapPercent(self: Node, gutter: enums.Gutter, percentage: f32) Value {
+    pub fn setGapPercent(self: Node, gutter: enums.Gutter, percentage: f32) void {
         c.YGNodeStyleSetGapPercent(self.handle, @intFromEnum(gutter), percentage);
     }
 
